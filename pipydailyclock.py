@@ -105,7 +105,7 @@ class ImageRenderer:
         self.image = None
         self.draw = None
         self.font = ImageFont.load_default()
-        self.clock_font = ImageFont.truetype("fonts/RobotoMono-Regular.ttf", 26)
+        # self.clock_font = ImageFont.truetype("fonts/RobotoMono-Regular.ttf", 26)
 
     def create_image(self):
         self.image = Image.new("1", (self.width, self.height))
@@ -113,6 +113,22 @@ class ImageRenderer:
 
         # Draw a black filled box to clear the image.
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
+
+    def string_to_digits(self, time_string, position=0):
+
+        img_name = None
+        for char in time_string:
+            if char == ":":
+                img_name = "colon.png"
+            else:
+                img_name = "%s.png" % char
+
+            digit_image = Image.open(os.path.join("digits", img_name))
+            self.image.paste(digit_image, (position, 0))
+
+            position += digit_image.width + 1
+
+        return position
 
     def render_time(self):
         now = datetime.now()
@@ -122,7 +138,11 @@ class ImageRenderer:
         else:
             current_time = now.strftime('%H:%M:%S')
 
-        self.draw.text((0, 0), current_time, font=self.clock_font, fill=255)
+        self.string_to_digits(current_time)
+
+        # self.draw.text((0, 0), current_time, font=self.clock_font, fill=255)
+
+
 
     def show(self):
         self.oled_screen = OledScreen()
