@@ -1,6 +1,8 @@
 # project files
 config.yaml
 icons/*
+fonts/*
+current.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

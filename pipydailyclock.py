@@ -6,16 +6,13 @@
 # * https://github.com/oxivanisher/InfoWindow/blob/master/mod_weather/mod_owm.py
 
 import requests
-from datetime import datetime as dt
+from datetime import datetime
 import os
 import yaml
 import math
 from PIL import Image, ImageDraw, ImageFont
 import logging
 import time
-from board import SCL, SDA
-import busio
-import adafruit_ssd1306
 
 # configure logging
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -61,25 +58,25 @@ class WeatherFetcher:
                                                             self.config['api_key']))
 
         data = r.json()
+        # ToDo: Cache me for some time plz
 
         # Sunrise and Sunset.
         if self.config['time_format'] == "12h":
-            sunrise = dt.fromtimestamp(data['sys'].get('sunrise')).strftime('%I:%M %p')
-            sunset  = dt.fromtimestamp(data['sys'].get('sunset')).strftime('%I:%M %p')
+            sunrise = datetime.fromtimestamp(data['sys'].get('sunrise')).strftime('%I:%M %p')
+            sunset  = datetime.fromtimestamp(data['sys'].get('sunset')).strftime('%I:%M %p')
         else:
-            sunrise = dt.fromtimestamp(data['sys'].get('sunrise')).strftime('%H:%M')
-            sunset  = dt.fromtimestamp(data['sys'].get('sunset')).strftime('%H:%M')
-
-
-class TimeFetcher:
-    def __init__(self):
-        logging.debug("Initializing TimeFetcher")
-        self.config = None
+            sunrise = datetime.fromtimestamp(data['sys'].get('sunrise')).strftime('%H:%M')
+            sunset  = datetime.fromtimestamp(data['sys'].get('sunset')).strftime('%H:%M')
 
 
 class OledScreen:
     def __init__(self):
         logging.debug("Initializing OledScreen")
+
+        from board import SCL, SDA
+        import busio
+        import adafruit_ssd1306
+
         self.i2c = busio.I2C(SCL, SDA)
         self.disp = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
 
@@ -100,32 +97,45 @@ class ImageRenderer:
         self.weather_fetcher = WeatherFetcher()
         self.weather_fetcher.config = self.config
 
-        self.time_fetcher = TimeFetcher()
-        self.time_fetcher.config = self.config
+        self.oled_screen = None
 
-        self.oled_screen = OledScreen()
-        self.oled_screen.clear_display()
+        self.width = 128
+        self.height = 32
 
         self.image = None
         self.draw = None
         self.font = ImageFont.load_default()
+        self.clock_font = ImageFont.truetype("fonts/RobotoMono-Regular.ttf", 26)
 
     def create_image(self):
-        self.image = Image.new("1", (self.oled_screen.disp.width, self.oled_screen.disp.height))
+        self.image = Image.new("1", (self.width, self.height))
         self.draw = ImageDraw.Draw(self.image)
 
         # Draw a black filled box to clear the image.
-        self.draw.rectangle((0, 0, self.oled_screen.disp.width, self.oled_screen.disp.height), outline=0, fill=0)
+        self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
 
     def render_time(self):
-        self.draw.text((x, y), "Text: %s" % "something", font=self.font, fill=255)
+        now = datetime.now()
+
+        if self.config['time_format'] == "12h":
+            current_time = now.strftime('%I:%M:%S %p')
+        else:
+            current_time = now.strftime('%H:%M:%S')
+
+        self.draw.text((0, 0), current_time, font=self.clock_font, fill=255)
 
     def show(self):
+        self.oled_screen = OledScreen()
+        self.oled_screen.clear_display()
+
         self.oled_screen.show(self.image)
+
+    def store(self):
+        self.image.save("current.png", 'PNG')
 
     def run(self):
         self.create_image()
-        self.show()
+        self.render_time()
 
 
 if __name__ == "__main__":
@@ -135,3 +145,5 @@ if __name__ == "__main__":
 
     ir = ImageRenderer(config)
     ir.run()
+    ir.store()
+    # ir.show()
