@@ -1,0 +1,4 @@
+api_key: 1234
+city: Bern,CH
+units: metric
+time_format: 24h
