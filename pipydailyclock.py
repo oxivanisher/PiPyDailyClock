@@ -16,7 +16,7 @@ import logging
 import time
 
 # configure logging
-if os.environ['DEBUG']:
+if os.environ['DEBUG'].lower() == "true":
     log_level = logging.DEBUG
 else:
     log_level = logging.INFO
