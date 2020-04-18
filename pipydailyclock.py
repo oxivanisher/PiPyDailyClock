@@ -18,8 +18,10 @@ import time
 # configure logging
 if os.environ['DEBUG'].lower() == "true":
     log_level = logging.DEBUG
-else:
+elif os.environ['WARNING'].lower() == "true":
     log_level = logging.INFO
+else:
+    log_level = logging.WARNING
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=log_level)
 
@@ -201,4 +203,4 @@ if __name__ == "__main__":
             ir.show()
             logging.info("show took %s seconds" % (time.time() - b4_show))
 
-            time.sleep(10 - (time.time() - run_start))
+            time.sleep(1 - (time.time() - run_start))
