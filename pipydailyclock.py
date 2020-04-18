@@ -148,12 +148,11 @@ class ImageRenderer:
 
         # self.draw.text((0, 0), current_time, font=self.clock_font, fill=255)
 
-
-
-    def show(self):
+    def init_screen(self):
         self.oled_screen = OledScreen()
         self.oled_screen.clear_display()
 
+    def show(self):
         self.oled_screen.show(self.image)
 
     def store(self):
@@ -172,9 +171,11 @@ if __name__ == "__main__":
     ir = ImageRenderer(config)
 
     if sys.argv[0] == "store":
+        ir.init_screen()
         ir.run()
         ir.store()
     else:
+        ir.init_screen()
         while True:
             ir.run()
             ir.show()
