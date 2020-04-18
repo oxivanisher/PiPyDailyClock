@@ -18,10 +18,8 @@ import time
 # configure logging
 if os.environ['DEBUG'].lower() == "true":
     log_level = logging.DEBUG
-elif os.environ['WARNING'].lower() == "true":
-    log_level = logging.INFO
 else:
-    log_level = logging.WARNING
+    log_level = logging.INFO
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=log_level)
 
