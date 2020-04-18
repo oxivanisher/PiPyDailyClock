@@ -168,15 +168,35 @@ if __name__ == "__main__":
     with open(r'config.yaml') as config_file:
         config = yaml.full_load(config_file)
 
+    b4_ir_init = time.time()
     ir = ImageRenderer(config)
+    logging.info("ImageRenderer took %s seconds to init" % (time.time() - b4_ir_init))
 
     if sys.argv[0] == "store":
+
+        b4_init = time.time()
         ir.init_screen()
+        logging.info("init_screen took %s seconds" % (time.time() - b4_init))
+
+        b4_run = time.time()
         ir.run()
+        logging.info("run took %s seconds" % (time.time() - b4_run))
+
+        b4_store = time.time()
         ir.store()
+        logging.info("store took %s seconds" % (time.time() - b4_store))
+
     else:
+        b4_init = time.time()
         ir.init_screen()
+        logging.info("init_screen took %s seconds" % (time.time() - b4_init))
         while True:
+            b4_run = time.time()
             ir.run()
+            logging.info("run took %s seconds" % (time.time() - b4_run))
+
+            b4_show = time.time()
             ir.show()
+            logging.info("show took %s seconds" % (time.time() - b4_show))
+
             time.sleep(0.2)
