@@ -3,6 +3,17 @@
 A simple script to display a clock with weather information for a Raspberry Pi and a ssd1306 based
 OLED screen.
 
+### Installation
+This project is made for Python 3 and provides a `requirements.txt` file, so that virtual environments
+can be used. To do so, run the following commands:
+```bash
+sudo apt install python3-venv
+python3 -m venv venv
+venv/bin/pip install -r requirements.txt
+```
+From this moment forward, you should call the file with use of the venv:
+`venv/bin/python3 pipydailyclock.py`
+
 ### Configuration
 The configuration is stored in the `config.yaml` file. You can use the `config.yaml.example` as
 a template.

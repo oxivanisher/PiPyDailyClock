@@ -8,6 +8,7 @@
 import requests
 from datetime import datetime
 import os
+import sys
 import yaml
 import math
 from PIL import Image, ImageDraw, ImageFont
@@ -15,7 +16,12 @@ import logging
 import time
 
 # configure logging
-logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
+if os.environ['DEBUG']:
+    log_level = logging.DEBUG
+else:
+    log_level = logging.INFO
+
+logging.basicConfig(format='%(asctime)s %(message)s', level=log_level)
 
 
 class WeatherFetcher:
@@ -165,5 +171,10 @@ if __name__ == "__main__":
 
     ir = ImageRenderer(config)
     ir.run()
-    ir.store()
-    # ir.show()
+
+    if sys.argv[0] == "store":
+        ir.store()
+    else:
+        while True:
+            ir.show()
+            time.sleep(0.5)
