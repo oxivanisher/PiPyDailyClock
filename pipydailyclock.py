@@ -170,11 +170,12 @@ if __name__ == "__main__":
         config = yaml.full_load(config_file)
 
     ir = ImageRenderer(config)
-    ir.run()
 
     if sys.argv[0] == "store":
+        ir.run()
         ir.store()
     else:
         while True:
+            ir.run()
             ir.show()
             time.sleep(0.5)
