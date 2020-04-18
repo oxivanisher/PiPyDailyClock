@@ -191,6 +191,8 @@ if __name__ == "__main__":
         ir.init_screen()
         logging.info("init_screen took %s seconds" % (time.time() - b4_init))
         while True:
+            run_start = time.time()
+
             b4_run = time.time()
             ir.run()
             logging.info("run took %s seconds" % (time.time() - b4_run))
@@ -199,4 +201,4 @@ if __name__ == "__main__":
             ir.show()
             logging.info("show took %s seconds" % (time.time() - b4_show))
 
-            time.sleep(0.2)
+            time.sleep(10 - (time.time() - run_start))
