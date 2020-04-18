@@ -151,6 +151,7 @@ class ImageRenderer:
     def init_screen(self):
         self.oled_screen = OledScreen()
         self.oled_screen.clear_display()
+        self.create_image()
 
     def show(self):
         self.oled_screen.show(self.image)
@@ -159,7 +160,6 @@ class ImageRenderer:
         self.image.save("current.png", 'PNG')
 
     def run(self):
-        self.create_image()
         self.render_time()
 
 
