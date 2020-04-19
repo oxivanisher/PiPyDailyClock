@@ -132,7 +132,7 @@ class ImageRenderer:
             digit_image = Image.open(os.path.join("digits", img_name))
             self.image.paste(digit_image, (position, 0))
 
-            position += digit_image.width + 1
+            position += digit_image.width + 2
 
         return position
 
