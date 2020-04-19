@@ -139,16 +139,17 @@ class ImageRenderer:
     def render_time(self):
         now = datetime.now()
 
+        seconds = int((time.time() % 60) / 2)
+        digit_image = Image.open(os.path.join("digits", "progress_inner_%s.png" % seconds))
+        self.image.paste(digit_image, (0, 0))
+        self.image.paste(digit_image, (1, 0))
+
         if self.config['time_format'] == "12h":
             current_time = now.strftime('%I:%M')
         else:
             current_time = now.strftime('%H:%M')
 
-        position = self.string_to_digits(current_time)
-        seconds = int((time.time() % 60) / 2)
-        img_name = "progress_inner_%s.png" % seconds
-        digit_image = Image.open(os.path.join("digits", img_name))
-        self.image.paste(digit_image, (position, 0))
+        self.string_to_digits(current_time, 4)
 
         # self.draw.text((0, 0), current_time, font=self.clock_font, fill=255)
 
