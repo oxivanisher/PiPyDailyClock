@@ -3,6 +3,7 @@ config.yaml
 icons/*
 fonts/*
 current.png
+weather_cache.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

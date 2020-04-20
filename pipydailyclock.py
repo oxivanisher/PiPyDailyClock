@@ -10,18 +10,90 @@ from datetime import datetime
 import os
 import sys
 import yaml
+import json
 import math
 from PIL import Image, ImageDraw, ImageFont
 import logging
 import time
 
 # configure logging
-if os.environ['DEBUG'].lower() == "true":
-    log_level = logging.DEBUG
-else:
-    log_level = logging.INFO
+log_level = logging.INFO
+if 'DEBUG' in os.environ.keys():
+    if os.environ['DEBUG'].lower() == "true":
+        log_level = logging.DEBUG
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=log_level)
+
+weather_symbols = {
+        # Group 2xx: Thunderstorm
+        200: "-",
+        201: "",
+        202: "+",
+        210: "-",
+        211: "",
+        212: "+",
+        221: "+",
+        230: "-",
+        231: "",
+        232: "+",
+
+        # Group 3xx: Drizzle
+        300: "-",
+        301: "",
+        302: "+",
+        310: "-",
+        311: "",
+        312: "+",
+        313: "",
+        314: "+",
+        321: "",
+
+        # Group 5xx: Rain
+        500: "-",
+        501: "",
+        502: "+",
+        503: "++",
+        504: "!",
+        511: "!",
+        520: "+",
+        521: "++",
+        522: "!",
+        531: "",
+
+        # Group 6xx: Snow
+        600: "-",
+        601: "",
+        602: "+",
+        611: "++",
+        612: "+",
+        613: "++",
+        615: "++",
+        616: "!",
+        620: "+",
+        621: "++",
+        622: "!",
+
+        # Group 7xx: Atmosphere
+        701: "-",
+        711: "-",
+        721: "",
+        731: "",
+        741: "",
+        751: "+",
+        761: "+",
+        762: "++",
+        771: "++",
+        781: "!",
+
+        # Group 800: Clear
+        800: "",
+
+        # Group 80x: Clouds
+        801: "-",
+        802: "",
+        803: "+",
+        804: "++"
+}
 
 
 class WeatherFetcher:
@@ -40,17 +112,6 @@ class WeatherFetcher:
                     icon_file.write(response.content)
                 icon_file.close()
 
-    def degrees_to_text_desc(self, deg):
-        if deg > 337.5: return u"N"
-        if deg > 292.5: return u"NW"
-        if deg > 247.5: return u"W"
-        if deg > 202.5: return u"SW"
-        if deg > 157.5: return u"S"
-        if deg > 122.5: return u"SE"
-        if deg >  67.5: return u"E"
-        if deg >  22.5: return u"NE"
-        return u"N"
-
     def png_to_bmp(self, icon):
         img = Image.open(os.path.join(self.icon_path, str(icon)))
         basename = os.path.splitext(icon)[0]
@@ -59,20 +120,30 @@ class WeatherFetcher:
         return "%s.bmp" % basename
 
     def fetch(self):
-        url = 'http://api.openweathermap.org/data/2.5/weather'
-        r = requests.get('{}?q={}&units={}&appid={}'.format(url, self.config['city'], self.config['units'],
-                                                            self.config['api_key']))
+        now = time.time()
+        cache_filename = 'weather_cache.json'
+        data = {'cache_ts': 0}
 
-        data = r.json()
-        # ToDo: Cache me for some time plz
+        cache_ts = 0
+        if os.path.isfile(cache_filename):
+            with open(cache_filename) as json_file:
+                data = json.load(json_file)
+            cache_ts = data['cache_ts']
 
-        # Sunrise and Sunset.
-        if self.config['time_format'] == "12h":
-            sunrise = datetime.fromtimestamp(data['sys'].get('sunrise')).strftime('%I:%M %p')
-            sunset  = datetime.fromtimestamp(data['sys'].get('sunset')).strftime('%I:%M %p')
+        if cache_ts < (now - 900):
+            logging.debug("Fetching weather data from api.openweathermap.org")
+            url = 'https://api.openweathermap.org/data/2.5/onecall'
+            r = requests.get('{}?lat={}&lon={}&units={}&appid={}'.format(url, self.config['lat'], self.config['lon'],
+                                                                         self.config['units'], self.config['api_key']))
+            data = r.json()
+            data['cache_ts'] = now
+
+            with open(cache_filename, 'w') as outfile:
+                json.dump(data, outfile)
         else:
-            sunrise = datetime.fromtimestamp(data['sys'].get('sunrise')).strftime('%H:%M')
-            sunset  = datetime.fromtimestamp(data['sys'].get('sunset')).strftime('%H:%M')
+            logging.debug("Using local weather data cache")
+
+        return data
 
 
 class OledScreen:
@@ -108,12 +179,9 @@ class ImageRenderer:
         self.width = 128
         self.height = 32
 
-        self.image = None
-        self.draw = None
-        self.font = ImageFont.load_default()
+        # self.font = ImageFont.load_default()
         # self.clock_font = ImageFont.truetype("fonts/RobotoMono-Regular.ttf", 26)
 
-    def create_image(self):
         self.image = Image.new("1", (self.width, self.height))
         self.draw = ImageDraw.Draw(self.image)
 
@@ -139,10 +207,8 @@ class ImageRenderer:
     def render_time(self):
         now = datetime.now()
 
-        seconds = int((time.time() % 60) / 2)
-        digit_image = Image.open(os.path.join("digits", "progress_inner_%s.png" % seconds))
-        self.image.paste(digit_image, (0, 0))
-        self.image.paste(digit_image, (1, 0))
+        seconds = int(time.time() % 60)
+        self.draw.line((0, 31, 59, 31), fill=255)
 
         if self.config['time_format'] == "12h":
             current_time = now.strftime('%I:%M')
@@ -153,10 +219,24 @@ class ImageRenderer:
 
         # self.draw.text((0, 0), current_time, font=self.clock_font, fill=255)
 
+    def render_weather(self):
+        weather_data = self.weather_fetcher.fetch()
+
+        # print(weather_data['daily'][0])
+
+        print("daily weather description:", weather_data['daily'][0]['weather'][0]['description'])
+        print("daily weather id         :", weather_data['daily'][0]['weather'][0]['id'])
+        print("daily weather icon       :", weather_data['daily'][0]['weather'][0]['icon'])
+
+        print("daily wind speed         :", weather_data['daily'][0]['wind_speed'])
+        print("daily humidity           :", weather_data['daily'][0]['humidity'])
+
+        print("daily feels_like morn    :", weather_data['daily'][0]['feels_like']['morn'])
+        print("daily feels_like day     :", weather_data['daily'][0]['feels_like']['day'])
+
     def init_screen(self):
         self.oled_screen = OledScreen()
         self.oled_screen.clear_display()
-        self.create_image()
 
     def show(self):
         self.oled_screen.show(self.image)
@@ -166,6 +246,7 @@ class ImageRenderer:
 
     def run(self):
         self.render_time()
+        self.render_weather()
 
 
 if __name__ == "__main__":
@@ -177,10 +258,10 @@ if __name__ == "__main__":
     ir = ImageRenderer(config)
     logging.debug("ImageRenderer took %s seconds to init" % (time.time() - b4_ir_init))
 
-    if sys.argv[0] == "store":
+    if sys.argv[1] == "store":
+        logging.info("Saving image to file")
 
         b4_init = time.time()
-        ir.init_screen()
         logging.debug("init_screen took %s seconds" % (time.time() - b4_init))
 
         b4_run = time.time()
@@ -192,6 +273,8 @@ if __name__ == "__main__":
         logging.debug("store took %s seconds" % (time.time() - b4_store))
 
     else:
+        logging.info("Starting display loop")
+
         b4_init = time.time()
         ir.init_screen()
         logging.debug("init_screen took %s seconds" % (time.time() - b4_init))
