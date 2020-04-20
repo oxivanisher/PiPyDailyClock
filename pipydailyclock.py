@@ -258,7 +258,11 @@ if __name__ == "__main__":
     ir = ImageRenderer(config)
     logging.debug("ImageRenderer took %s seconds to init" % (time.time() - b4_ir_init))
 
-    if sys.argv[1] == "store":
+    do = False
+    if len(sys.argv) > 1:
+        do = sys.argv[1]
+
+    if do == "store":
         logging.info("Saving image to file")
 
         b4_init = time.time()
