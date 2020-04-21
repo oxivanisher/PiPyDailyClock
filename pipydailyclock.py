@@ -242,15 +242,15 @@ class ImageRenderer:
         symbol_image = Image.open(os.path.join(os.path.join("digits", "%s.png" % symbol_name)))
         self.image.paste(symbol_image, (symbol_position, 0))
 
-        print("daily weather description:", weather_data['daily'][0]['weather'][0]['description'])
-        print("daily weather id         :", weather_data['daily'][0]['weather'][0]['id'])
-        print("daily weather icon       :", weather_data['daily'][0]['weather'][0]['icon'])
+        # print("daily weather description:", weather_data['daily'][0]['weather'][0]['description'])
+        # print("daily weather id         :", weather_data['daily'][0]['weather'][0]['id'])
+        # print("daily weather icon       :", weather_data['daily'][0]['weather'][0]['icon'])
 
-        print("daily wind speed         :", weather_data['daily'][0]['wind_speed'])
-        print("daily humidity           :", weather_data['daily'][0]['humidity'])
-
-        print("daily feels_like morn    :", weather_data['daily'][0]['feels_like']['morn'])
-        print("daily feels_like day     :", weather_data['daily'][0]['feels_like']['day'])
+        # print("daily wind speed         :", weather_data['daily'][0]['wind_speed'])
+        # print("daily humidity           :", weather_data['daily'][0]['humidity'])
+        #
+        # print("daily feels_like morn    :", weather_data['daily'][0]['feels_like']['morn'])
+        # print("daily feels_like day     :", weather_data['daily'][0]['feels_like']['day'])
 
     def init_screen(self):
         self.oled_screen = OledScreen()
