@@ -293,4 +293,6 @@ if __name__ == "__main__":
             ir.show()
             logging.debug("show took %s seconds" % (time.time() - b4_show))
 
-            time.sleep(1 - (time.time() - run_start))
+            loop_sleep = 1 - (time.time() - run_start)
+            if loop_sleep:
+                time.sleep(loop_sleep)
