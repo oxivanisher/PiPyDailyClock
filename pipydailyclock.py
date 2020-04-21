@@ -294,5 +294,5 @@ if __name__ == "__main__":
             logging.debug("show took %s seconds" % (time.time() - b4_show))
 
             loop_sleep = 1 - (time.time() - run_start)
-            if loop_sleep:
+            if loop_sleep > 0:
                 time.sleep(loop_sleep)
