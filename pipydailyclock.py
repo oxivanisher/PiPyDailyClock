@@ -24,6 +24,11 @@ if 'DEBUG' in os.environ.keys():
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=log_level)
 
+
+def map_seconds(x, in_min, in_max, out_min, out_max):
+    return int((x-in_min) * (out_max-out_min) / (in_max-in_min) + out_min)
+
+
 weather_symbols = {
         # Group 2xx: Thunderstorm
         200: "-",
@@ -208,14 +213,14 @@ class ImageRenderer:
         now = datetime.now()
 
         seconds = int(time.time() % 60)
-        self.draw.line((0, 31, 59, 31), fill=255)
+        self.draw.line((0, 31, map_seconds(seconds, 0, 59, 0, 78), 31), fill=255)
 
         if self.config['time_format'] == "12h":
             current_time = now.strftime('%I:%M')
         else:
             current_time = now.strftime('%H:%M')
 
-        self.string_to_digits(current_time, 4)
+        self.string_to_digits(current_time)
 
         # self.draw.text((0, 0), current_time, font=self.clock_font, fill=255)
 
