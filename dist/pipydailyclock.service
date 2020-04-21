@@ -7,7 +7,7 @@ User=pi
 Group=pi
 Type=idle
 WorkingDirectory=/home/pi/PiPyDailyClock
-ExecStart=/home/pi/PiPyDailyClock/venv/venv/bin/python3 pipydailyclock.py
+ExecStart=/home/pi/PiPyDailyClock/venv/bin/python3 pipydailyclock.py
 Restart=on-failure
 
 [Install]
