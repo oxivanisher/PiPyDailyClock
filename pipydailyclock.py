@@ -12,7 +12,7 @@ import sys
 import yaml
 import json
 import math
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageOps
 import logging
 import time
 
@@ -25,79 +25,38 @@ if 'DEBUG' in os.environ.keys():
 logging.basicConfig(format='%(asctime)s %(message)s', level=log_level)
 
 
+### helper methods
 def map_seconds(x, in_min, in_max, out_min, out_max):
     return int((x-in_min) * (out_max-out_min) / (in_max-in_min) + out_min)
 
 
+def remove_transparency(im, bg_colour=(255, 255, 255)):
+
+    # Only process if image has transparency (http://stackoverflow.com/a/1963146)
+    if im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in im.info):
+
+        # Need to convert to RGBA if LA format due to a bug in PIL (http://stackoverflow.com/a/1963146)
+        alpha = im.convert('RGBA').getchannel('A')
+
+        # Create a new background image of our matt color.
+        # Must be RGBA because paste requires both images have the same format
+        # (http://stackoverflow.com/a/8720632  and  http://stackoverflow.com/a/9459208)
+        bg = Image.new("RGBA", im.size, bg_colour + (255,))
+        bg.paste(im, mask=alpha)
+        bg.convert('RGB')
+        return bg
+
+    else:
+        return im
+
+
 weather_symbols = {
-        # Group 2xx: Thunderstorm
-        200: "-",
-        201: "",
-        202: "+",
-        210: "-",
-        211: "",
-        212: "+",
-        221: "+",
-        230: "-",
-        231: "",
-        232: "+",
-
-        # Group 3xx: Drizzle
-        300: "-",
-        301: "",
-        302: "+",
-        310: "-",
-        311: "",
-        312: "+",
-        313: "",
-        314: "+",
-        321: "",
-
-        # Group 5xx: Rain
-        500: "-",
-        501: "",
-        502: "+",
-        503: "++",
-        504: "!",
-        511: "!",
-        520: "+",
-        521: "++",
-        522: "!",
-        531: "",
-
-        # Group 6xx: Snow
-        600: "-",
-        601: "",
-        602: "+",
-        611: "++",
-        612: "+",
-        613: "++",
-        615: "++",
-        616: "!",
-        620: "+",
-        621: "++",
-        622: "!",
-
-        # Group 7xx: Atmosphere
-        701: "-",
-        711: "-",
-        721: "",
-        731: "",
-        741: "",
-        751: "+",
-        761: "+",
-        762: "++",
-        771: "++",
-        781: "!",
-
-        # Group 800: Clear
-        800: "",
-
-        # Group 80x: Clouds
-        801: "-",
-        802: "",
-        803: "+",
-        804: "++"
+        "minus_minus": [],
+        "minus": [200, 210, 230, 300, 310, 500, 600, 701, 711, 801],
+        "neutral": [201, 211, 231, 301, 311, 313, 321, 501, 531, 601, 721, 731, 741, 800, 802],
+        "plus": [202, 212, 221, 232, 302, 312, 314, 502, 520, 602, 612, 620, 751, 761, 803],
+        "plus_plus": [503, 521, 611, 613, 615, 622, 762, 771, 804],
+        "exclamation": [504, 511, 522, 616, 622, 781]
 }
 
 
@@ -106,16 +65,51 @@ class WeatherFetcher:
         logging.debug("Initializing WeatherFetcher")
         self.icon_path = 'icons'
         self.config = None
+        self.max_icon_width = 34
+        self.max_icon_height = 27
 
-    def get_icon(self, icon_url):
+    def get_icon(self, icon_id):
         # check for icon
-        bn = os.path.basename(icon_url)
+        icon_name = "%s.png" % icon_id
+        icon_url = "http://openweathermap.org/img/wn/%s" % icon_name
+        bn = os.path.basename(icon_name)
         for root, dirs, files in os.walk(self.icon_path):
             if bn not in files:
+                logging.debug("Downloading missing icon file")
                 with open(os.path.join(self.icon_path, bn), "wb") as icon_file:
                     response = requests.get(icon_url)
                     icon_file.write(response.content)
                 icon_file.close()
+
+                # convert image for oled screen
+                img = Image.open(os.path.join(self.icon_path, bn))
+
+                # crop image
+                image_box = img.getbbox()
+                cropped_img = img.crop(image_box)
+
+                # normalize image size
+                paste_width = int((self.max_icon_width - cropped_img.width) / 2)
+                paste_height = int((self.max_icon_height - cropped_img.height) / 2)
+                img = Image.new('RGBA', (self.max_icon_width, self.max_icon_height))
+                img.paste(cropped_img, (paste_width, paste_height))
+
+                # remove transparency
+                img = remove_transparency(img)
+
+                # make everything except transparency black
+                thresh = 254
+                fn = lambda x: 255 if x > thresh else 0
+                img = img.convert('L').point(fn, mode='1')
+
+                # invert image
+                img = img.convert('L')
+                img = ImageOps.invert(img)
+                img = img.convert('1')
+
+                # save image
+                img.save(os.path.join(self.icon_path, bn))
+        return os.path.join(self.icon_path, bn)
 
     def png_to_bmp(self, icon):
         img = Image.open(os.path.join(self.icon_path, str(icon)))
@@ -147,6 +141,9 @@ class WeatherFetcher:
                 json.dump(data, outfile)
         else:
             logging.debug("Using local weather data cache")
+
+        # fetch and prepare icon
+        self.get_icon(data['daily'][0]['weather'][0]['icon'])
 
         return data
 
@@ -183,6 +180,7 @@ class ImageRenderer:
 
         self.width = 128
         self.height = 32
+        self.weather_start = 82
 
         # self.font = ImageFont.load_default()
         # self.clock_font = ImageFont.truetype("fonts/RobotoMono-Regular.ttf", 26)
@@ -227,7 +225,22 @@ class ImageRenderer:
     def render_weather(self):
         weather_data = self.weather_fetcher.fetch()
 
-        # print(weather_data['daily'][0])
+        # get and paste the weather icon
+        logging.debug("Using icon %s" % weather_data['daily'][0]['weather'][0]['icon'])
+        icon_image_path = self.weather_fetcher.get_icon(weather_data['daily'][0]['weather'][0]['icon'])
+        icon_image = Image.open(icon_image_path)
+        self.image.paste(icon_image, (self.weather_start, 0))
+
+        # get and paste the weather symbol
+        symbol_position = icon_image.width + 2
+        symbol_name = "error"
+        for current_symbol in weather_symbols.keys():
+            if weather_data['daily'][0]['weather'][0]['id'] in weather_symbols[current_symbol]:
+                symbol_name = current_symbol
+                logging.debug("Using symbol %s" % symbol_name)
+
+        symbol_image = Image.open(os.path.join(os.path.join("digits", "%s.png" % symbol_name)))
+        self.image.paste(symbol_image, (symbol_position, 0))
 
         print("daily weather description:", weather_data['daily'][0]['weather'][0]['description'])
         print("daily weather id         :", weather_data['daily'][0]['weather'][0]['id'])
