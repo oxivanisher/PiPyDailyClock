@@ -130,7 +130,7 @@ class WeatherFetcher:
             cache_ts = data['cache_ts']
 
         if cache_ts < (now - 900):
-            logging.debug("Fetching weather data from api.openweathermap.org")
+            logging.info("Fetching weather data from api.openweathermap.org")
             url = 'https://api.openweathermap.org/data/2.5/onecall'
             r = requests.get('{}?lat={}&lon={}&units={}&appid={}'.format(url, self.config['lat'], self.config['lon'],
                                                                          self.config['units'], self.config['api_key']))
@@ -268,6 +268,7 @@ class ImageRenderer:
 
 
 if __name__ == "__main__":
+    logging.info("PiPyDailyClock starting up")
     logging.debug("Loading config file")
     with open(r'config.yaml') as config_file:
         config = yaml.full_load(config_file)

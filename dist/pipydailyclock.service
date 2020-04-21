@@ -1,0 +1,14 @@
+[Unit]
+Description=PiPyDailyClock
+After=multi-user.target
+
+[Service]
+User=pi
+Group=pi
+Type=idle
+WorkingDirectory=/home/pi/PiPyDailyClock
+ExecStart=/home/pi/PiPyDailyClock/venv/venv/bin/python3 pipydailyclock.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
