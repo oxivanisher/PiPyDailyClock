@@ -238,9 +238,11 @@ class ImageRenderer:
             if weather_data['daily'][0]['weather'][0]['id'] in weather_symbols[current_symbol]:
                 symbol_name = current_symbol
                 logging.debug("Using symbol %s" % symbol_name)
-
-        symbol_image = Image.open(os.path.join(os.path.join("digits", "%s.png" % symbol_name)))
-        self.image.paste(symbol_image, (symbol_position, 0))
+        try:
+            symbol_image = Image.open(os.path.join("digits", "%s.png" % symbol_name))
+            self.image.paste(symbol_image, (symbol_position, 0))
+        except FileNotFoundError:
+            logging.warning("Unable to find file: %s" % os.path.join("digits", "%s.png" % symbol_name))
 
         # print("daily weather description:", weather_data['daily'][0]['weather'][0]['description'])
         # print("daily weather id         :", weather_data['daily'][0]['weather'][0]['id'])
