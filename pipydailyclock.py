@@ -211,6 +211,7 @@ class ImageRenderer:
         now = datetime.now()
 
         seconds = int(time.time() % 60)
+        self.draw.line((0, 31, 78, 31), fill=0)
         self.draw.line((0, 31, map_seconds(seconds, 0, 59, 0, 78), 31), fill=255)
 
         if self.config['time_format'] == "12h":
