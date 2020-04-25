@@ -121,13 +121,12 @@ class WeatherFetcher:
     def fetch(self):
         now = time.time()
         cache_filename = 'weather_cache.json'
-        data = {'cache_ts': 0}
 
         cache_ts = 0
         if os.path.isfile(cache_filename):
             with open(cache_filename) as json_file:
                 data = json.load(json_file)
-            cache_ts = data['cache_ts']
+                cache_ts = data['cache_ts']
 
         if cache_ts < (now - 900):
             logging.info("Fetching weather data from api.openweathermap.org")
