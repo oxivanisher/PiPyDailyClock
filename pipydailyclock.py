@@ -67,6 +67,7 @@ class WeatherFetcher:
         self.config = None
         self.max_icon_width = 34
         self.max_icon_height = 27
+        self.weather_data = {'cache_ts': -1}
 
     def get_icon(self, icon_id):
         # check for icon
@@ -122,29 +123,28 @@ class WeatherFetcher:
         now = time.time()
         cache_filename = 'weather_cache.json'
 
-        cache_ts = 0
-        if os.path.isfile(cache_filename):
-            with open(cache_filename) as json_file:
-                data = json.load(json_file)
-                cache_ts = data['cache_ts']
+        if self.weather_data['cache_ts'] == -1:
+            if os.path.isfile(cache_filename):
+                with open(cache_filename) as json_file:
+                    self.weather_data = json.load(json_file)
 
-        if cache_ts < (now - 900):
+        if self.weather_data['cache_ts'] < (now - 900):
             logging.info("Fetching weather data from api.openweathermap.org")
             url = 'https://api.openweathermap.org/data/2.5/onecall'
             r = requests.get('{}?lat={}&lon={}&units={}&appid={}'.format(url, self.config['lat'], self.config['lon'],
                                                                          self.config['units'], self.config['api_key']))
-            data = r.json()
-            data['cache_ts'] = now
+            self.weather_data = r.json()
+            self.weather_data['cache_ts'] = now
 
             with open(cache_filename, 'w') as outfile:
-                json.dump(data, outfile)
+                json.dump(self.weather_data, outfile)
         else:
             logging.debug("Using local weather data cache")
 
         # fetch and prepare icon
-        self.get_icon(data['daily'][0]['weather'][0]['icon'])
+        self.get_icon(self.weather_data['daily'][0]['weather'][0]['icon'])
 
-        return data
+        return self.weather_data
 
 
 class OledScreen:
