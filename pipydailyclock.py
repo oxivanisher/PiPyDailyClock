@@ -233,7 +233,7 @@ class ImageRenderer:
         self.image.paste(icon_image, (self.weather_start, 0))
 
         # get and paste the weather symbol
-        symbol_position = icon_image.width + 2
+        symbol_position = self.weather_start + icon_image.width + 2
         symbol_name = "error"
         for current_symbol in weather_symbols.keys():
             if weather_data['daily'][0]['weather'][0]['id'] in weather_symbols[current_symbol]:
