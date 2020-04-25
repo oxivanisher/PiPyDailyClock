@@ -233,7 +233,6 @@ class ImageRenderer:
         self.image.paste(icon_image, (self.weather_start, 0))
 
         # get and paste the weather symbol
-        symbol_position = self.weather_start + icon_image.width + 2
         symbol_name = "error"
         for current_symbol in weather_symbols.keys():
             if weather_data['daily'][0]['weather'][0]['id'] in weather_symbols[current_symbol]:
@@ -241,7 +240,7 @@ class ImageRenderer:
                 logging.debug("Using symbol %s" % symbol_name)
         try:
             symbol_image = Image.open(os.path.join("digits", "%s.png" % symbol_name))
-            self.image.paste(symbol_image, (symbol_position, 0))
+            self.image.paste(symbol_image, (self.weather_start + icon_image.width + 2, 0))
         except FileNotFoundError:
             logging.warning("Unable to find file: %s" % os.path.join("digits", "%s.png" % symbol_name))
 
