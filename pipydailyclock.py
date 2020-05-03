@@ -187,6 +187,9 @@ class ImageRenderer:
         self.image = Image.new("1", (self.width, self.height))
         self.draw = ImageDraw.Draw(self.image)
 
+        self.blackout_image()
+
+    def blackout_image(self):
         # Draw a black filled box to clear the image.
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
 
@@ -264,6 +267,7 @@ class ImageRenderer:
         self.image.save("current.png", 'PNG')
 
     def run(self):
+        self.blackout_image()
         self.render_time()
         self.render_weather()
 
