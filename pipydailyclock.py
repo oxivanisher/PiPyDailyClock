@@ -275,7 +275,7 @@ class ImageRenderer:
         # print("daily feels_like day     :", weather_data['daily'][0]['feels_like']['eve'])
 
         now = datetime.now()
-        if now.strftime('%H') < 12:
+        if int(now.strftime('%H')) < 12:
             first = weather_data['daily'][0]['feels_like']['morn']
             second = weather_data['daily'][0]['feels_like']['day']
         else:
