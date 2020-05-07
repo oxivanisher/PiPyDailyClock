@@ -290,9 +290,15 @@ class ImageRenderer:
 
         now = datetime.now()
         if int(now.strftime('%H')) < 12:
+            # its morning
             first = weather_data['daily'][0]['feels_like']['morn']
             second = weather_data['daily'][0]['feels_like']['day']
+        elif int(now.strftime('%H')) > 20:
+            # its evening
+            first = weather_data['daily'][0]['feels_like']['eve']
+            second = weather_data['daily'][1]['feels_like']['morn']
         else:
+            # its daytime
             first = weather_data['daily'][0]['feels_like']['day']
             second = weather_data['daily'][0]['feels_like']['eve']
 
