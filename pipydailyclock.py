@@ -212,19 +212,18 @@ class ImageRenderer:
     def string_to_small_digits(self, time_string, position=0):
 
         img_name = None
-        time_string.append("°")
         for char in time_string:
-            if char == "°":
-                img_name = "sdeg.png"
-            else:
-                img_name = "s%s.png" % char
+            img_name = "s%s.png" % char
 
             digit_image = Image.open(os.path.join("digits", img_name))
             self.image.paste(digit_image, (position, 27))
 
             position += digit_image.width + 1
 
-        return position
+        digit_image = Image.open(os.path.join("digits", "sdeg.png"))
+        self.image.paste(digit_image, (position, 27))
+
+        return position + 1
 
     def render_time(self):
         now = datetime.now()
