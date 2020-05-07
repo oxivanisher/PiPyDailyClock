@@ -129,12 +129,12 @@ class WeatherFetcher:
                     self.weather_data = json.load(json_file)
 
         if self.weather_data['cache_ts'] < (now - 900):
+            self.weather_data = {'cache_ts': now}
             logging.info("Fetching weather data from api.openweathermap.org")
             url = 'https://api.openweathermap.org/data/2.5/onecall'
             r = requests.get('{}?lat={}&lon={}&units={}&appid={}'.format(url, self.config['lat'], self.config['lon'],
                                                                          self.config['units'], self.config['api_key']))
             self.weather_data = r.json()
-            self.weather_data['cache_ts'] = now
 
             with open(cache_filename, 'w') as outfile:
                 json.dump(self.weather_data, outfile)
@@ -209,6 +209,23 @@ class ImageRenderer:
 
         return position
 
+    def string_to_small_digits(self, time_string, position=0):
+
+        img_name = None
+        time_string.append("°")
+        for char in time_string:
+            if char == "°":
+                img_name = "sdeg.png"
+            else:
+                img_name = "s%s.png" % char
+
+            digit_image = Image.open(os.path.join("digits", img_name))
+            self.image.paste(digit_image, (position, 27))
+
+            position += digit_image.width + 1
+
+        return position
+
     def render_time(self):
         now = datetime.now()
 
@@ -255,6 +272,18 @@ class ImageRenderer:
         #
         # print("daily feels_like morn    :", weather_data['daily'][0]['feels_like']['morn'])
         # print("daily feels_like day     :", weather_data['daily'][0]['feels_like']['day'])
+        # print("daily feels_like day     :", weather_data['daily'][0]['feels_like']['eve'])
+
+        now = datetime.now()
+        if now.strftime('%H') < 12:
+            first = weather_data['daily'][0]['feels_like']['morn']
+            second = weather_data['daily'][0]['feels_like']['day']
+        else:
+            first = weather_data['daily'][0]['feels_like']['day']
+            second = weather_data['daily'][0]['feels_like']['eve']
+
+        position = self.string_to_small_digits(self.weather_start, int(first))
+        self.string_to_small_digits(position + 4, int(second))
 
     def init_screen(self):
         self.oled_screen = OledScreen()
