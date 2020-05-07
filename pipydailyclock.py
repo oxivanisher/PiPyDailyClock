@@ -187,7 +187,7 @@ class ImageRenderer:
 
     def blackout_image(self):
         # Draw a black filled box to clear the image.
-        self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
+        self.draw.rectangle((0, 0, self.width - 1, self.height - 1), outline=0, fill=0)
 
     def string_to_digits(self, time_string, position=0):
 
@@ -304,7 +304,6 @@ class ImageRenderer:
         self.oled_screen.clear_display()
 
     def show(self):
-        self.oled_screen.clear_display()
         self.oled_screen.show(self.image)
 
     def store(self):
