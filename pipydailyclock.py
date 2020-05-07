@@ -212,7 +212,7 @@ class ImageRenderer:
 
         if reversed:
             # calculating position "from behind"
-            position = position - len(time_string) * 5 + 2
+            position = position - 1 - (len(time_string) * 5 + 2)
 
         img_name = None
         for char in str(time_string):
@@ -251,7 +251,8 @@ class ImageRenderer:
         logging.debug("Using icon %s" % weather_data['daily'][0]['weather'][0]['icon'])
         icon_image_path = self.weather_fetcher.get_icon(weather_data['daily'][0]['weather'][0]['icon'])
         icon_image = Image.open(icon_image_path)
-        self.image.paste(icon_image, (self.weather_start, 0))
+        weather_icon_start = self.weather_start + (self.width - 1 - self.weather_start - icon_image.width) / 2
+        self.image.paste(icon_image, (weather_icon_start, 0))
 
         # get and paste the weather symbol
         symbol_name = "error"
