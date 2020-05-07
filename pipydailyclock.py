@@ -123,11 +123,6 @@ class WeatherFetcher:
         now = time.time()
         cache_filename = 'weather_cache.json'
 
-        if self.weather_data['cache_ts'] == -1:
-            if os.path.isfile(cache_filename):
-                with open(cache_filename) as json_file:
-                    self.weather_data = json.load(json_file)
-
         if self.weather_data['cache_ts'] < (now - 900):
             logging.info("Fetching weather data from api.openweathermap.org")
             url = 'https://api.openweathermap.org/data/2.5/onecall'
