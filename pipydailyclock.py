@@ -207,7 +207,7 @@ class ImageRenderer:
     def string_to_small_digits(self, time_string, position=0):
 
         img_name = None
-        for char in time_string:
+        for char in str(time_string):
             img_name = "s%s.png" % char
 
             digit_image = Image.open(os.path.join("digits", img_name))
