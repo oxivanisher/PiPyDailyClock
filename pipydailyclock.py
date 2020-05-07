@@ -153,6 +153,7 @@ class OledScreen:
 
         self.i2c = busio.I2C(SCL, SDA)
         self.disp = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
+        self.disp.set_contrast(100)
 
     def clear_display(self):
         self.disp.fill(0)
