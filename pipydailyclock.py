@@ -65,6 +65,7 @@ class WeatherFetcher:
         logging.debug("Initializing WeatherFetcher")
         self.icon_path = 'icons'
         self.config = None
+        self.last_icon = False
         self.max_icon_width = 34
         self.max_icon_height = 27
         self.weather_data = {'cache_ts': -1}
@@ -204,7 +205,11 @@ class ImageRenderer:
 
         return position
 
-    def string_to_small_digits(self, time_string, position=0):
+    def string_to_small_digits(self, time_string, position=0, reversed=False):
+
+        if reversed:
+            # calculating position "from behind"
+            position = position - len(time_string) * 5 + 2
 
         img_name = None
         for char in str(time_string):
@@ -277,7 +282,7 @@ class ImageRenderer:
             second = weather_data['daily'][0]['feels_like']['eve']
 
         position = self.string_to_small_digits(int(first), self.weather_start)
-        self.string_to_small_digits(int(second), position + 4)
+        self.string_to_small_digits(int(second), self.width, True)
 
     def init_screen(self):
         self.oled_screen = OledScreen()
