@@ -251,7 +251,7 @@ class ImageRenderer:
         logging.debug("Using icon %s" % weather_data['daily'][0]['weather'][0]['icon'])
         icon_image_path = self.weather_fetcher.get_icon(weather_data['daily'][0]['weather'][0]['icon'])
         icon_image = Image.open(icon_image_path)
-        weather_icon_start = self.weather_start + (self.width - 1 - self.weather_start - icon_image.width) / 2
+        weather_icon_start = math.floor(self.weather_start + (self.width - 1 - self.weather_start - icon_image.width) / 2)
         self.image.paste(icon_image, (weather_icon_start, 0))
 
         # get and paste the weather symbol
