@@ -270,7 +270,7 @@ class ImageRenderer:
         if symbol_image:
             symbol_length = symbol_image.width + 2
 
-        weather_icon_offset = math.floor(self.width - 1 - self.weather_start - icon_image.width - symbol_length) / 2
+        weather_icon_offset = math.floor((self.width - 1 - self.weather_start - icon_image.width - symbol_length) / 2)
         weather_icon_start = self.weather_start + weather_icon_offset
         self.image.paste(icon_image, (weather_icon_start, 0))
 
