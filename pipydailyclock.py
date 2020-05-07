@@ -276,8 +276,8 @@ class ImageRenderer:
             first = weather_data['daily'][0]['feels_like']['day']
             second = weather_data['daily'][0]['feels_like']['eve']
 
-        position = self.string_to_small_digits(self.weather_start, int(first))
-        self.string_to_small_digits(position + 4, int(second))
+        position = self.string_to_small_digits(int(first), self.weather_start)
+        self.string_to_small_digits(int(second), position + 4)
 
     def init_screen(self):
         self.oled_screen = OledScreen()
