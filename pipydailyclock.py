@@ -205,12 +205,12 @@ class ImageRenderer:
 
         return position
 
-    def string_to_small_digits(self, time_string, position=0, reversed=False):
+    def string_to_small_digits(self, time_string, position=0, rev=False):
 
         # ensure its a string after rounding
         time_string = str(time_string)
 
-        if reversed:
+        if rev:
             # calculating position "from behind"
             position = position - 1 - (len(time_string) * 5 + 2)
 
@@ -304,6 +304,7 @@ class ImageRenderer:
         self.oled_screen.clear_display()
 
     def show(self):
+        self.oled_screen.clear_display()
         self.oled_screen.show(self.image)
 
     def store(self):
