@@ -207,6 +207,9 @@ class ImageRenderer:
 
     def string_to_small_digits(self, time_string, position=0, reversed=False):
 
+        # ensure its a string after rounding
+        time_string = str(time_string)
+
         if reversed:
             # calculating position "from behind"
             position = position - len(time_string) * 5 + 2
