@@ -302,7 +302,6 @@ class ImageRenderer:
     def init_screen(self):
         self.oled_screen = OledScreen()
         self.oled_screen.clear_display()
-        self.oled_screen.set_contrast(100)
 
     def show(self):
         self.oled_screen.show(self.image)
