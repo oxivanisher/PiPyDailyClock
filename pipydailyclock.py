@@ -247,24 +247,35 @@ class ImageRenderer:
     def render_weather(self):
         weather_data = self.weather_fetcher.fetch()
 
-        # get and paste the weather icon
+        # get the weather icon
         logging.debug("Using icon %s" % weather_data['daily'][0]['weather'][0]['icon'])
         icon_image_path = self.weather_fetcher.get_icon(weather_data['daily'][0]['weather'][0]['icon'])
         icon_image = Image.open(icon_image_path)
-        weather_icon_start = math.floor(self.weather_start + (self.width - 1 - self.weather_start - icon_image.width) / 2)
-        self.image.paste(icon_image, (weather_icon_start, 0))
 
-        # get and paste the weather symbol
+        # get the weather symbol
         symbol_name = "error"
         for current_symbol in weather_symbols.keys():
             if weather_data['daily'][0]['weather'][0]['id'] in weather_symbols[current_symbol]:
                 symbol_name = current_symbol
                 logging.debug("Using symbol %s" % symbol_name)
+
+        # calculate positions
+        symbol_image = False
         try:
             symbol_image = Image.open(os.path.join("digits", "%s.png" % symbol_name))
-            self.image.paste(symbol_image, (self.weather_start + icon_image.width + 2, 0))
         except FileNotFoundError:
             logging.warning("Unable to find file: %s" % os.path.join("digits", "%s.png" % symbol_name))
+
+        symbol_length = 0
+        if symbol_image:
+            symbol_length = symbol_image.width + 2
+
+        weather_icon_offset = math.floor(self.width - 1 - self.weather_start - icon_image.width - symbol_length) / 2
+        weather_icon_start = self.weather_start + weather_icon_offset
+        self.image.paste(icon_image, (weather_icon_start, 0))
+
+        if symbol_image:
+            self.image.paste(symbol_image, (weather_icon_start + icon_image.width + 2, 0))
 
         # print("daily weather description:", weather_data['daily'][0]['weather'][0]['description'])
         # print("daily weather id         :", weather_data['daily'][0]['weather'][0]['id'])
