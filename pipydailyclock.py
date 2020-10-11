@@ -315,10 +315,11 @@ class ImageRenderer:
     def store(self):
         self.image.save("current.png", 'PNG')
 
-    def run(self):
+    def run(self, skip_loop = False):
         self.blackout_image()
-        self.render_time()
-        self.render_weather()
+        if skip_loop:
+            self.render_time()
+            self.render_weather()
 
 
 if __name__ == "__main__":
@@ -355,11 +356,17 @@ if __name__ == "__main__":
         b4_init = time.time()
         ir.init_screen()
         logging.debug("init_screen took %s seconds" % (time.time() - b4_init))
+        loop_count = 0
         while True:
             run_start = time.time()
 
+            skip_loop = False
             b4_run = time.time()
-            ir.run()
+            if config['screensaver']:
+                if loop_count % config['screensaver'] == 0:
+                    skip_loop = True
+
+            ir.run(skip_loop)
             logging.debug("run took %s seconds" % (time.time() - b4_run))
 
             b4_show = time.time()
