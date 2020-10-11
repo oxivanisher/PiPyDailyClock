@@ -376,3 +376,5 @@ if __name__ == "__main__":
             loop_sleep = 1 - (time.time() - run_start)
             if loop_sleep > 0:
                 time.sleep(loop_sleep)
+                
+            loop_count += 1
