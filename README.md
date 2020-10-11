@@ -17,6 +17,8 @@ From this moment forward, you should call the file with use of the venv:
 ### Configuration
 The configuration is stored in the `config.yaml` file. You can use the `config.yaml.example` as
 a template.
+The screensaver option can be `false` or any integer. If false, all images will be shown (might burn-
+in the OLED screen faster). If a number is given, every X loop, a blank screen will be displayed.
 
 #### Weather API
 Weather information is fetched from [Open Weather Map](https://openweathermap.org/api). You have
