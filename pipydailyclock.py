@@ -317,7 +317,7 @@ class ImageRenderer:
 
     def run(self, skip_loop = False):
         self.blackout_image()
-        if skip_loop:
+        if not skip_loop:
             self.render_time()
             self.render_weather()
 
