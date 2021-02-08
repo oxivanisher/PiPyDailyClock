@@ -35,3 +35,17 @@ You have to download the fonts manually. Please put them in the `fonts` folder.
 * https://www.dafont.com/alarm-clock.font
 * https://www.1001fonts.com/digital-7-font.html
 * https://fonts.google.com/specimen/Roboto+Mono?query=mono&preview.text=00:15&preview.text_type=custom
+
+### Trouble shooting
+#### Missing library
+If you encounter such a error:
+```
+Traceback (most recent call last):
+  File "pipydailyclock.py", line 15, in <module>
+    from PIL import Image, ImageDraw, ImageOps
+  File "/home/pi/PiPyDailyClock/venv/lib/python3.7/site-packages/PIL/Image.py", line 93, in <module>
+    from . import _imaging as core
+ImportError: libopenjp2.so.7: cannot open shared object file: No such file or directory
+```
+Try installing the followin library:
+`apt install libopenjp2-7`
