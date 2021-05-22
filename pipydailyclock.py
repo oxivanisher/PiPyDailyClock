@@ -165,6 +165,7 @@ class OledScreen:
 
         try:
             self.disp = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
+            logging.info("Screen initialized successfully")
             self.initialized = True
             self.error_shown = False
         except ValueError as e:
