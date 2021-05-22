@@ -168,7 +168,6 @@ class OledScreen:
         except ValueError as e:
             logging.debug("Catched ValueError: %s" % e)
             logging.warning("OLED Screen could not be initialized.")
-            sys.exit(1)
 
     def clear_display(self):
         self.disp.fill(0)
