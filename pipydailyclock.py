@@ -168,7 +168,7 @@ class OledScreen:
             logging.info("Screen initialized successfully")
             self.initialized = True
             self.error_shown = False
-        except ValueError as e:
+        except (ValueError, OSError) as e:
             logging.debug("Catched ValueError: %s" % e)
             if not self.error_shown:
                 logging.warning("OLED Screen could not be initialized.")
@@ -192,7 +192,7 @@ class OledScreen:
             self.disp.image(image)
             try:
                 self.disp.show()
-            except OSError as e:
+            except (ValueError, OSError) as e:
                 self.initialized = False
                 logging.debug("Catched OSError: %s" % e)
                 logging.warning("OLED Screen probably disconnected.")
