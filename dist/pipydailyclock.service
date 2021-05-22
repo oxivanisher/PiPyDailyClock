@@ -9,6 +9,7 @@ Type=idle
 WorkingDirectory=/home/pi/PiPyDailyClock
 ExecStart=/home/pi/PiPyDailyClock/venv/bin/python3 pipydailyclock.py
 Restart=on-failure
+RestartSec=1
 
 [Install]
 WantedBy=multi-user.target

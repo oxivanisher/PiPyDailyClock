@@ -152,7 +152,12 @@ class OledScreen:
         import adafruit_ssd1306
 
         self.i2c = busio.I2C(SCL, SDA)
-        self.disp = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
+
+        try:
+            self.disp = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
+        except ValueError as e:
+            logging.info("OLED Screen could not be initialized. Exiting...")
+            os.exit(1)
 
     def clear_display(self):
         self.disp.fill(0)
