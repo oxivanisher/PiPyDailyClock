@@ -151,13 +151,23 @@ class OledScreen:
         import busio
         import adafruit_ssd1306
 
+        self.initialized = False
+        self.i2c = None
+        self.disp = None
+
+        self.init_display()
+
+    def init_display(self):
+        logging.debug("Initializing i2c screen")
         self.i2c = busio.I2C(SCL, SDA)
+        self.initialized = False
 
         try:
             self.disp = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
+            self.initialized = True
         except ValueError as e:
-            logging.error("Catched ValueError: %s" % e)
-            logging.error("OLED Screen could not be initialized. Exiting...")
+            logging.debug("Catched ValueError: %s" % e)
+            logging.warning("OLED Screen could not be initialized.")
             sys.exit(1)
 
     def clear_display(self):
@@ -165,13 +175,20 @@ class OledScreen:
         self.disp.show()
 
     def show(self, image):
-        self.disp.image(image)
-        try:
-            self.disp.show()
-        except OSError as e:
-            logging.error("Catched OSError: %s" % e)
-            logging.error("OLED Screen probably disconnected. Exiting...")
-            sys.exit(1)
+
+        if not self.initialized:
+            self.init_display()
+
+        if not self.initialized:
+            self.disp.image(image)
+            try:
+                self.disp.show()
+            except OSError as e:
+                self.initialized = False
+                logging.debug("Catched OSError: %s" % e)
+                logging.warning("OLED Screen probably disconnected.")
+        else:
+            logging.debug("Screen is still not available")
 
 class ImageRenderer:
     def __init__(self, config):
