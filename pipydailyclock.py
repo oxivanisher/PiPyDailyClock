@@ -156,7 +156,7 @@ class OledScreen:
         try:
             self.disp = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
         except ValueError as e:
-            logging.error(e)
+            logging.error("Catched ValueError: %s" % e)
             logging.error("OLED Screen could not be initialized. Exiting...")
             sys.exit(1)
 
@@ -169,7 +169,7 @@ class OledScreen:
         try:
             self.disp.show()
         except OSError as e:
-            logging.error(e)
+            logging.error("Catched OSError: %s" % e)
             logging.error("OLED Screen probably disconnected. Exiting...")
             sys.exit(1)
 
