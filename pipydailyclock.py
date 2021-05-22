@@ -170,11 +170,16 @@ class OledScreen:
             logging.warning("OLED Screen could not be initialized.")
 
     def clear_display(self):
-        self.disp.fill(0)
-        self.disp.show()
+        if not self.initialized:
+            self.init_display()
+
+        if not self.initialized:
+            self.disp.fill(0)
+            self.disp.show()
+        else:
+            logging.debug("Screen is still not available")
 
     def show(self, image):
-
         if not self.initialized:
             self.init_display()
 
