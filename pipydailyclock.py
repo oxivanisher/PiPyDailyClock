@@ -150,6 +150,7 @@ class OledScreen:
         self.initialized = False
         self.i2c = None
         self.disp = None
+        self.error_shown = False
 
         self.init_display()
 
@@ -165,9 +166,12 @@ class OledScreen:
         try:
             self.disp = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
             self.initialized = True
+            self.error_shown = False
         except ValueError as e:
             logging.debug("Catched ValueError: %s" % e)
-            logging.warning("OLED Screen could not be initialized.")
+            if not self.error_shown:
+                logging.warning("OLED Screen could not be initialized.")
+                self.error_shown = True
 
     def clear_display(self):
         if not self.initialized:
