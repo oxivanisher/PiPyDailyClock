@@ -147,10 +147,6 @@ class OledScreen:
     def __init__(self):
         logging.debug("Initializing OledScreen")
 
-        from board import SCL, SDA
-        import busio
-        import adafruit_ssd1306
-
         self.initialized = False
         self.i2c = None
         self.disp = None
@@ -158,6 +154,10 @@ class OledScreen:
         self.init_display()
 
     def init_display(self):
+        from board import SCL, SDA
+        import busio
+        import adafruit_ssd1306
+
         logging.debug("Initializing i2c screen")
         self.i2c = busio.I2C(SCL, SDA)
         self.initialized = False
