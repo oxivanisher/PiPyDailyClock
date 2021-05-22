@@ -173,7 +173,7 @@ class OledScreen:
         if not self.initialized:
             self.init_display()
 
-        if not self.initialized:
+        if self.initialized:
             self.disp.fill(0)
             self.disp.show()
         else:
@@ -183,7 +183,7 @@ class OledScreen:
         if not self.initialized:
             self.init_display()
 
-        if not self.initialized:
+        if self.initialized:
             self.disp.image(image)
             try:
                 self.disp.show()
