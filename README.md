@@ -11,6 +11,13 @@ sudo apt install python3-venv
 python3 -m venv venv
 venv/bin/pip install -r requirements.txt
 ```
+**Attention:** There is sometimes a strange bug when installing the RPi.GPIO library. Thanks to [this
+post](https://askubuntu.com/a/1330210) helped solve it, by setting the following environment variable
+before the pip command:
+```bash
+export CFLAGS=-fcommon
+```
+
 From this moment forward, you should call the file with use of the venv:
 `venv/bin/python3 pipydailyclock.py`
 
