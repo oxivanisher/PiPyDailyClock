@@ -126,7 +126,7 @@ class WeatherFetcher:
 
         if self.weather_data['cache_ts'] < (now - 900):
             logging.info("Fetching weather data from api.openweathermap.org")
-            url = 'https://api.openweathermap.org/data/2.5/onecall'
+            url = 'https://api.openweathermap.org/data/2.5/weather'
             r = requests.get('{}?lat={}&lon={}&units={}&appid={}'.format(url, self.config['lat'], self.config['lon'],
                                                                          self.config['units'], self.config['api_key']))
             self.weather_data = r.json()
@@ -138,7 +138,7 @@ class WeatherFetcher:
             logging.debug("Using local weather data cache")
 
         # fetch and prepare icon
-        self.get_icon(self.weather_data['daily'][0]['weather'][0]['icon'])
+        self.get_icon(self.weather_data['weather'][0]['icon'])
 
         return self.weather_data
 
@@ -284,14 +284,15 @@ class ImageRenderer:
         weather_data = self.weather_fetcher.fetch()
 
         # get the weather icon
-        logging.debug("Using icon %s" % weather_data['daily'][0]['weather'][0]['icon'])
-        icon_image_path = self.weather_fetcher.get_icon(weather_data['daily'][0]['weather'][0]['icon'])
+        logging.debug("Using icon %s" % weather_data['weather'][0]['icon'])
+        icon_image_path = self.weather_fetcher.get_icon(weather_data['weather'][0]['icon'])
         icon_image = Image.open(icon_image_path)
 
         # get the weather symbol
         symbol_name = "error"
         for current_symbol in weather_symbols.keys():
-            if weather_data['daily'][0]['weather'][0]['id'] in weather_symbols[current_symbol]:
+            print(current_symbol)
+            if weather_data['weather'][0]['id'] in weather_symbols[current_symbol]:
                 symbol_name = current_symbol
                 logging.debug("Using symbol %s" % symbol_name)
 
@@ -313,9 +314,9 @@ class ImageRenderer:
         if symbol_image:
             self.image.paste(symbol_image, (weather_icon_start + icon_image.width + 2, 0))
 
-        # print("daily weather description:", weather_data['daily'][0]['weather'][0]['description'])
-        # print("daily weather id         :", weather_data['daily'][0]['weather'][0]['id'])
-        # print("daily weather icon       :", weather_data['daily'][0]['weather'][0]['icon'])
+        # print("daily weather description:", weather_data['weather'][0]['description'])
+        # print("daily weather id         :", weather_data['weather'][0]['id'])
+        # print("daily weather icon       :", weather_data['weather'][0]['icon'])
 
         # print("daily wind speed         :", weather_data['daily'][0]['wind_speed'])
         # print("daily humidity           :", weather_data['daily'][0]['humidity'])
@@ -324,22 +325,26 @@ class ImageRenderer:
         # print("daily feels_like day     :", weather_data['daily'][0]['feels_like']['day'])
         # print("daily feels_like day     :", weather_data['daily'][0]['feels_like']['eve'])
 
-        now = datetime.now()
-        if int(now.strftime('%H')) < 12:
-            # its morning
-            first = weather_data['daily'][0]['feels_like']['morn']
-            second = weather_data['daily'][0]['feels_like']['day']
-        elif int(now.strftime('%H')) > 20:
-            # its evening
-            first = weather_data['daily'][0]['feels_like']['eve']
-            second = weather_data['daily'][1]['feels_like']['morn']
-        else:
-            # its daytime
-            first = weather_data['daily'][0]['feels_like']['day']
-            second = weather_data['daily'][0]['feels_like']['eve']
+        # openweathermap is getting greedy and fucks free users (as "open" services do ...)
+        # so the feels_like is now only a current value. its not important anyways.
+        # now = datetime.now()
+        # if int(now.strftime('%H')) < 12:
+        #     # its morning
+        #     first = weather_data['daily'][0]['feels_like']['morn']
+        #     second = weather_data['daily'][0]['feels_like']['day']
+        # elif int(now.strftime('%H')) > 20:
+        #     # its evening
+        #     first = weather_data['daily'][0]['feels_like']['eve']
+        #     second = weather_data['daily'][1]['feels_like']['morn']
+        # else:
+        #     # its daytime
+        #     first = weather_data['daily'][0]['feels_like']['day']
+        #     second = weather_data['daily'][0]['feels_like']['eve']
 
-        position = self.string_to_small_digits(int(first), self.weather_start)
-        self.string_to_small_digits(int(second), self.width, True)
+        # position = self.string_to_small_digits(int(first), self.weather_start)
+        # self.string_to_small_digits(int(second), self.width, True)
+
+        self.string_to_small_digits(int(weather_data['main']['feels_like']), self.width, True)
 
     def init_screen(self):
         self.oled_screen = OledScreen()
