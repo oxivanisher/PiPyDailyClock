@@ -291,7 +291,6 @@ class ImageRenderer:
         # get the weather symbol
         symbol_name = "error"
         for current_symbol in weather_symbols.keys():
-            print(current_symbol)
             if weather_data['weather'][0]['id'] in weather_symbols[current_symbol]:
                 symbol_name = current_symbol
                 logging.debug("Using symbol %s" % symbol_name)
